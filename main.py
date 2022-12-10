@@ -246,5 +246,118 @@ def day6_part2():
     print(result)
 
 
+def evaluate(netlist, net, memo):
+    if net in memo:
+        return memo[net]
+
+    if not net[0].isalpha():
+        return int(net)
+
+    exp = netlist[net]
+
+    if len(exp) == 1:
+        result = evaluate(netlist, exp[0], memo)
+        memo[net] = result
+        return result
+
+    b = "0"
+    if exp[0] == "NOT":
+        a = exp[1]
+    else:
+        a = exp[0]
+        b = exp[2]
+
+    if not a[0].isalpha():
+        a = int(a)
+    else:
+        a = evaluate(netlist, a, memo)
+
+    if not b[0].isalpha():
+        b = int(b)
+    else:
+        b = evaluate(netlist, b, memo)
+
+    result = 0
+    if exp[0] == "NOT":
+        result = (~a) & 0xFFFF
+    elif exp[1] == "OR":
+        result = (a | b) & 0xFFFF
+    elif exp[1] == "AND":
+        result = (a & b) & 0xFFFF
+    elif exp[1] == "LSHIFT":
+        result = (a << b) & 0xFFFF
+    elif exp[1] == "RSHIFT":
+        result = (a >> b) & 0xFFFF
+
+    memo[net] = result
+    return result
+
+
+def day7_part1():
+    lines = [line[:-1] for line in open("day7.txt").readlines()]
+
+    netlist = {}
+    for line in lines:
+        line = line.split(" ")
+        netlist[line[-1]] = line[:-2]
+
+    print(evaluate(netlist, "a", {}))
+
+
+def day7_part2():
+    lines = [line[:-1] for line in open("day7.txt").readlines()]
+
+    netlist = {}
+    for line in lines:
+        line = line.split(" ")
+        netlist[line[-1]] = line[:-2]
+
+    a = evaluate(netlist, "a", {})
+    netlist["b"] = [str(a)]
+
+    print(evaluate(netlist, "a", {}))
+
+
+def day8_part1():
+    lines = [line[:-1] for line in open("day8.txt").readlines()]
+
+    result = 0
+    for line in lines:
+        i = 0
+        while i < len(line):
+            if line[i] == "\"":
+                result += 1
+                i += 1
+            elif line[i] == "\\":
+                result += 1
+                i += 1
+                if line[i] == "x":
+                    result += 2
+                    i += 3
+                else:
+                    i += 1
+            else:
+                i += 1
+
+    print(result)
+
+
+def day8_part2():
+    lines = [line[:-1] for line in open("day8.txt").readlines()]
+
+    result = 0
+    for line in lines:
+        result += 2
+        i = 0
+        while i < len(line):
+            if line[i] == "\"":
+                result += 1
+            elif line[i] == "\\":
+                result += 1
+            i += 1
+
+    print(result)
+
+
 if __name__ == '__main__':
-    day6_part2()
+    day8_part2()
